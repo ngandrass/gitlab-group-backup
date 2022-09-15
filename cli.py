@@ -33,7 +33,7 @@ class CLI:
     def _setup(self):
         self.parser.add_argument("-u", "--gitlab-url", type=str, required=True, help="URL of the GitLab instance to access")
         self.parser.add_argument("-g", "--group-id", type=int, required=True, help="ID of the root group to backup")
-        self.parser.add_argument("-t", "--access-token", type=str, required=False, help="GitLab API access token")
+        self.parser.add_argument("-t", "--access-token", type=str, required=False, default=None, help="GitLab API access token")
         self.parser.add_argument("-o", "--output-dir", type=str, required=False, default="out", help="Directory to write GitLab exports into")
 
     def parse_args(self):

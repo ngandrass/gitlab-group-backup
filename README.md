@@ -19,4 +19,5 @@ configuration parameters and can be used to overwrite any of the CLI arguments.
 
 ## Notes
 
- - Request rate limiting is automatically applied
+ - Request rate limiting is automatically applied. A strongly enforced rate limit can greatly impact the execution time
+   of this script.

@@ -7,5 +7,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./data:/data
+      - ./out:/data
       - ./config.yaml:/app/config.yaml:ro

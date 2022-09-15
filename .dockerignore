@@ -2,6 +2,5 @@
 .git
 .gitignore
 .venv
-data
 Dockerfile
 out

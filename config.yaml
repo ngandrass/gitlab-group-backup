@@ -1,0 +1,4 @@
+# Can be used to overwrite CLI arguments
+
+# Log-level from logging package (e.g. logging.DEBUG, logging.INFO, logging.ERROR)
+loglevel: "DEBUG"

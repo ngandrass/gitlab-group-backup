@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "gitlab-group-backup"
+version = "0.1.0"
+description = ""
+authors = ["Niels Gandraß <niels@gandrass.de>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-gitlab = "^3.9.0"
+PyYAML = "^6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

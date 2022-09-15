@@ -9,9 +9,9 @@ class CLI:
         self._setup()
 
     def _setup(self):
-        self.parser.add_argument("-u", "--gitlab-url", required=True, help="URL of the GitLab instance to access")
-        self.parser.add_argument("-t", "--access-token", required=False, help="GitLab API access token")
-        self.parser.add_argument("-p", "--path", default="/", required=False, help="Limit backed up elements to given path (e.g. '/username/group')")
+        self.parser.add_argument("-u", "--gitlab-url", type=str, required=True, help="URL of the GitLab instance to access")
+        self.parser.add_argument("-g", "--group-id", type=int, required=True, help="ID of the root group to backup")
+        self.parser.add_argument("-t", "--access-token", type=str, required=False, help="GitLab API access token")
 
     def parse_args(self):
         """

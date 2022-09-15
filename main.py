@@ -48,19 +48,20 @@ class GitLabGroupBackup:
         CFG.add_config_values(CLI.parse_args())
         CFG.parse_config_file()
 
-        logging.basicConfig(encoding="utf-8", level=CFG.get("loglevel"))
+        logging.basicConfig(encoding="utf-8", level=CFG.get("loglevel"), format='%(asctime)s [%(levelname)s]: %(message)s')
         LOG.debug(f"Config: {CFG.CONFIG}")
 
         # Authenticate at GitLab API
         self.GitLab = gitlab.Gitlab(url=CFG.get("gitlab_url"), private_token=CFG.get('access_token'))
         self.GitLab.auth()
+        LOG.info(f"Authentication at {CFG.get('gitlab_url')} successful.")
 
         # Get root group and all subgroups from API
         root_group = self.GitLab.groups.get(CFG.get("group_id"))
         LOG.debug(f"Root group: {root_group}")
         LOG.info(f"Found root group: {root_group.full_name} (ID: {root_group.id}) - {root_group.web_url}")
 
-        LOG.info(f"Querying subgroups ...")
+        LOG.info(f"Querying all subgroups recursively ...")
         subgroups = []
         for subgroup in root_group.descendant_groups.list():
             subgroups.append(self.GitLab.groups.get(subgroup.id))
@@ -72,7 +73,7 @@ class GitLabGroupBackup:
     def _backup_group(self, group):
         """ Creates a backup of a given group and triggers backups of all contained projects """
         # Create backup target
-        LOG.info(f"vvv Starting backup of group: {group.full_name} (ID: {group.id}) - {group.web_url} vvv")
+        LOG.info(f"↧ Starting backup of group: {group.full_name} (ID: {group.id}) - {group.web_url}")
         filestore_path = os.path.join(CFG.get('output_dir'), group.full_path)
         os.makedirs(filestore_path, exist_ok=True)
 
@@ -81,31 +82,33 @@ class GitLabGroupBackup:
         time.sleep(CFG.get('group_backup_backoff_sec'))
         backup_file = os.path.join(filestore_path, f"group_{group.path}_{group.id}_{self.date_str}.tar.gz")
         with open(backup_file, 'wb') as f:
-            LOG.info(f"Export finished. Writing group backup to: {backup_file}")
+            LOG.info(f"  ↳ Group metadata export finished. Writing group backup to: {backup_file}")
             export.download(streamed=True, action=f.write)
 
         # Backup group projects
         for project in group.projects.list():
             self._backup_project(self.GitLab.projects.get(project.id), filestore_path)
 
-        LOG.info(f"^^^ Finished processing of group: {group.full_name} (ID: {group.id}) - {group.web_url} ^^^")
+        LOG.info(f"↥ Finished processing of group: {group.full_name} (ID: {group.id}) - {group.web_url}")
 
     def _backup_project(self, project, target_dir):
         """ Creates a backup of the given project """
         # Trigger export routine
-        LOG.info(f"Backing up project: {project.name} (ID: {project.id}) - {project.web_url}")
+        LOG.info(f"  ↳ Backing up project: {project.name} (ID: {project.id}) - {project.web_url}")
         export = project.exports.create()
 
         # Wait for export to finish
         export.refresh()
+        LOG.info("    ↳ Export started. Waiting for completion...")
         while export.export_status != 'finished':
             time.sleep(1)
             export.refresh()
+        LOG.info("    ↳ Export finished.")
 
         # Download the exported archive
         backup_file = os.path.join(target_dir, f"{project.path}_{project.id}_{self.date_str}.tar.gz")
         with open(backup_file, 'wb') as f:
-            LOG.info(f"Export finished. Writing project backup to: {backup_file}")
+            LOG.info(f"    ↳ Writing project backup to: {backup_file}")
             export.download(streamed=True, action=f.write)
 
 

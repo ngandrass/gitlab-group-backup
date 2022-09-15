@@ -1,10 +1,7 @@
 # Can be used to overwrite CLI arguments
 
 # Log-level from logging package (e.g. logging.DEBUG, logging.INFO, logging.ERROR)
-loglevel: "DEBUG"
-
-# Output directory
-output_dir: "./out"
+loglevel: "INFO"
 
 # Group backup creation delay in seconds. Unlike the Project Export API, GitLab does not provide an export_status for
 # Group Exports. It is up to the user to ensure the export is finished. However, Group Exports only contain metadata,

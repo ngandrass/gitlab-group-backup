@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  gitlab-group-backup:
+    build:
+      dockerfile: './Dockerfile'
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data
+      - ./config.yaml:/app/config.yaml:ro

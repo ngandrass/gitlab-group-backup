@@ -27,7 +27,8 @@ options:
   -u GITLAB_URL, --gitlab-url GITLAB_URL
                         URL of the GitLab instance to access
   -g GROUP_ID, --group-id GROUP_ID
-                        ID of the root group to backup
+                        ID of the root group to backup. Multiple group IDs can
+                        be passed by repeating this argument.
   -t ACCESS_TOKEN, --access-token ACCESS_TOKEN
                         GitLab API access token
 ```

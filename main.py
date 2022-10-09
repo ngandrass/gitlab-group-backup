@@ -45,7 +45,7 @@ class GitLabGroupBackup:
     """
 
     def __init__(self):
-        self.VERSION = (1, 1, 1)
+        self.VERSION = (1, 2, 0)
         """ Current semantic version number """
 
         self.GitLab = None

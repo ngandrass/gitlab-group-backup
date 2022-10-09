@@ -8,6 +8,7 @@ Creates full backups of a GitLab group including its subgroups and all projects 
     of GitLab.
   - Handles rate-limiting of GitLab API
   - Supports private groups
+  - Works with personal and group access tokens
   - Can automatically be run as recurring task via Docker
 
 ## Usage
@@ -53,9 +54,11 @@ configuration parameters and can be used to overwrite any of the CLI arguments.
 
 ### API Access Token
 
-A group access token with the following permissions is required:
-  - Role: Owner
+A [personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) or
+[group access token](https://docs.gitlab.com/ee/user/group/settings/group_access_tokens.html) with the following
+permissions is required:
   - Scopes: `api`, `read_api`, `read_repository`
+  - Role: Owner _(applies to group access tokens only)_
 
 The token is supplied via the `--access-token` CLI option or via the `config.yaml` file.
 

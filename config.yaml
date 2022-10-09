@@ -1,4 +1,19 @@
-# Can be used to overwrite CLI arguments
+# Most config values are set via CLI arguments. This file can be used to
+# overwrite all CLI arguments and to set additional parameters.
+
+###########################
+# CLI argument overwrites #
+###########################
+
+# gitlab_url: "https://gitlab.com"
+# group_id: 42
+# access_token: "0x123456789ABCDEF"
+# output_dir: "out"
+# create_subfolder: False
+
+#######################################
+# Additional configuration parameters #
+#######################################
 
 # Log-level from logging package (e.g. logging.DEBUG, logging.INFO, logging.ERROR)
 loglevel: "INFO"

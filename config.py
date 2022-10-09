@@ -20,11 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Any
+
 import yaml
 
 
 class Config:
-    """ Config class for GitLab Group Backup """
+    """
+    Config class for GitLab Group Backup
+    """
 
     CONFIG_FILE = "config.yaml"
     CONFIG = {}
@@ -32,19 +36,23 @@ class Config:
     def __init__(self):
         return
 
-    def get(self, key):
+    def get(self, key) -> Any:
         return self.CONFIG[key]
 
-    def set(self, key, value):
+    def set(self, key, value) -> None:
         self.CONFIG[key] = value
 
-    def parse_config_file(self):
-        """ Parses the config file from disk and loads its values """
+    def parse_config_file(self) -> None:
+        """
+        Parses the config file from disk and loads its values
+        """
         with open(self.CONFIG_FILE) as f:
             self.add_config_values(yaml.load(f, Loader=yaml.loader.SafeLoader))
 
-    def add_config_values(self, new_values: dict):
-        """ Extends this Config object by the given key-value pairs """
+    def add_config_values(self, new_values: dict) -> None:
+        """
+        Extends this Config object by the given key-value pairs
+        """
         if new_values is None:
             return
 

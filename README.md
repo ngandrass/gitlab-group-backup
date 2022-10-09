@@ -52,6 +52,14 @@ To install all software dependencies run `poetry install` inside the project roo
 This tool is primarily configured by CLI arguments (see: `./main.py -h`). The `config.yaml` file contains additional
 configuration parameters and can be used to overwrite any of the CLI arguments.
 
+### Private Groups / Access Token Scopes
+
+If your group is private, a group access token with the following permissions is required:
+  - Role: Owner
+  - Scopes: `api`, `read_api`, `read_repository`
+
+The token can be supplied via the `--access-token` CLI option or via the `config.yaml` file.
+
 
 ## Running via Docker
 

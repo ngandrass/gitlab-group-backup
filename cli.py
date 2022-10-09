@@ -59,6 +59,13 @@ class CLI:
             help="Directory to write GitLab exports into"
         )
 
+        self.parser.add_argument("-s", "--create-subdir",
+            action="store_true",
+            required=False,
+            default=False,
+            help="Create a new subdirectory, named by backup date, inside output directory for each backup"
+        )
+
     def parse_args(self) -> dict:
         """
         Parses CLI arguments

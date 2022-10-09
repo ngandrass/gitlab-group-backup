@@ -9,7 +9,7 @@
 # group_id: 42
 # access_token: "0x123456789ABCDEF"
 # output_dir: "out"
-# create_subfolder: False
+# create_subdir: False
 
 #######################################
 # Additional configuration parameters #

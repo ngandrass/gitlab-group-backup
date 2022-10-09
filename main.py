@@ -42,19 +42,29 @@ class GitLabGroupBackup:
 
     def __init__(self):
         self.GitLab = None
-        self.date_str = datetime.today().strftime('%Y-%m-%d_%H%M%S')
+        """ GitLab API library object """
 
-    def main(self):
+        self.output_path = None
+        """ Root output path all backup files are written to """
+
+        self.backup_date_str = datetime.today().strftime('%Y-%m-%d_%H%M%S')
+        """ Fixed date string for this backup """
+
+    def main(self) -> None:
+        """
+        Main program routine
+        """
+        # Parse config and setup logging
         CFG.add_config_values(CLI.parse_args())
         CFG.parse_config_file()
 
         logging.basicConfig(encoding="utf-8", level=CFG.get("loglevel"), format='%(asctime)s [%(levelname)s]: %(message)s')
         LOG.debug(f"Config: {CFG.CONFIG}")
 
-        # Authenticate at GitLab API
-        self.GitLab = gitlab.Gitlab(url=CFG.get("gitlab_url"), private_token=CFG.get('access_token'))
-        self.GitLab.auth()
-        LOG.info(f"Authentication at {CFG.get('gitlab_url')} successful.")
+        # Bootstrap
+        self.output_path = self._get_output_path()
+        LOG.info(f"Writing all backups to: {os.path.abspath(self._get_output_path())}")
+        self._perform_gitlab_auth()
 
         # Get root group and all subgroups from API
         root_group = self.GitLab.groups.get(CFG.get("group_id"))
@@ -70,17 +80,39 @@ class GitLabGroupBackup:
         for group in [root_group] + subgroups:
             self._backup_group(group)
 
-    def _backup_group(self, group):
-        """ Creates a backup of a given group and triggers backups of all contained projects """
+    def _perform_gitlab_auth(self) -> None:
+        """
+        Authenticates at the GitLab API
+        """
+        self.GitLab = gitlab.Gitlab(url=CFG.get("gitlab_url"), private_token=CFG.get('access_token'))
+        self.GitLab.auth()
+        LOG.info(f"Authentication at {CFG.get('gitlab_url')} successful.")
+
+    def _get_output_path(self) -> os.path:
+        """
+        :return: Root output path for this backup, based on CFG values
+        """
+        if self.output_path:
+            return self.output_path
+
+        if CFG.get('create_subdir'):
+            return os.path.join(CFG.get('output_dir'), self.backup_date_str)
+        else:
+            return os.path.normpath(CFG.get('output_dir'))
+
+    def _backup_group(self, group) -> None:
+        """
+        Creates a backup of a given group and triggers backups of all contained projects
+        """
         # Create backup target
         LOG.info(f"↧ Starting backup of group: {group.full_name} (ID: {group.id}) - {group.web_url}")
-        filestore_path = os.path.join(CFG.get('output_dir'), group.full_path)
+        filestore_path = os.path.join(self._get_output_path(), group.full_path)
         os.makedirs(filestore_path, exist_ok=True)
 
         # Export group settings
         export = group.exports.create()
         time.sleep(CFG.get('group_backup_backoff_sec'))
-        backup_file = os.path.join(filestore_path, f"group_{group.path}_{group.id}_{self.date_str}.tar.gz")
+        backup_file = os.path.join(filestore_path, f"group_{group.path}_{group.id}_{self.backup_date_str}.tar.gz")
         with open(backup_file, 'wb') as f:
             LOG.info(f"  ↳ Group metadata export finished. Writing group backup to: {backup_file}")
             export.download(streamed=True, action=f.write)
@@ -91,8 +123,10 @@ class GitLabGroupBackup:
 
         LOG.info(f"↥ Finished processing of group: {group.full_name} (ID: {group.id}) - {group.web_url}")
 
-    def _backup_project(self, project, target_dir):
-        """ Creates a backup of the given project """
+    def _backup_project(self, project, target_dir) -> None:
+        """
+        Creates a backup of the given project
+        """
         # Trigger export routine
         LOG.info(f"  ↳ Backing up project: {project.name} (ID: {project.id}) - {project.web_url}")
         export = project.exports.create()
@@ -106,7 +140,7 @@ class GitLabGroupBackup:
         LOG.info("    ↳ Export finished.")
 
         # Download the exported archive
-        backup_file = os.path.join(target_dir, f"{project.path}_{project.id}_{self.date_str}.tar.gz")
+        backup_file = os.path.join(target_dir, f"{project.path}_{project.id}_{self.backup_date_str}.tar.gz")
         with open(backup_file, 'wb') as f:
             LOG.info(f"    ↳ Writing project backup to: {backup_file}")
             export.download(streamed=True, action=f.write)

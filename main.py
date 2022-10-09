@@ -75,19 +75,12 @@ class GitLabGroupBackup:
         if not self._perform_gitlab_auth():
             exit(1)
 
-        # Get root group and all subgroups from API
-        root_group = self.GitLab.groups.get(CFG.get("group_id"))
-        LOG.debug(f"Root group: {root_group}")
-        LOG.info(f"Found root group: {root_group.full_name} (ID: {root_group.id}) - {root_group.web_url}")
+        # Create backups
+        LOG.info(f"Backing up the following groups: {CFG.get('group_id')}")
+        for group_id in CFG.get('group_id'):
+            self._do_full_backup(group_id)
 
-        LOG.info(f"Querying all subgroups recursively ...")
-        subgroups = []
-        for subgroup in root_group.descendant_groups.list():
-            subgroups.append(self.GitLab.groups.get(subgroup.id))
-
-        # Backup groups
-        for group in [root_group] + subgroups:
-            self._backup_group(group)
+        LOG.info(f"Finished backup of all groups")
 
     def _perform_gitlab_auth(self) -> bool:
         """
@@ -118,6 +111,27 @@ class GitLabGroupBackup:
             return os.path.join(CFG.get('output_dir'), self.backup_date_str)
         else:
             return os.path.normpath(CFG.get('output_dir'))
+
+    def _do_full_backup(self, root_group_id) -> None:
+        """
+        Performes a full backup of the GitLab group with ID root_group_id.
+        Includes all repositories and subgroups.
+
+        :param root_group_id: ID of the group to start the backup at
+        """
+        # Get root group and all subgroups from API
+        root_group = self.GitLab.groups.get(root_group_id)
+        LOG.debug(f"Root group: {root_group}")
+        LOG.info(f"Found root group: {root_group.full_name} (ID: {root_group.id}) - {root_group.web_url}")
+
+        LOG.info(f"Querying all subgroups recursively ...")
+        subgroups = []
+        for subgroup in root_group.descendant_groups.list():
+            subgroups.append(self.GitLab.groups.get(subgroup.id))
+
+        # Backup groups
+        for group in [root_group] + subgroups:
+            self._backup_group(group)
 
     def _backup_group(self, group) -> None:
         """

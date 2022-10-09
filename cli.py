@@ -58,8 +58,9 @@ class CLI:
 
         self.parser.add_argument("-g", "--group-id",
             type=int,
+            action="append",
             required=True,
-            help="ID of the root group to backup"
+            help="ID of the root group to backup. Multiple group IDs can be passed by repeating this argument."
         )
 
         self.parser.add_argument("-t", "--access-token",

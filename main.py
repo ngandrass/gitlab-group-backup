@@ -39,8 +39,14 @@ LOG = logging.getLogger(__name__)
 
 
 class GitLabGroupBackup:
+    """
+    Creates full backups of a GitLab group including its subgroups and all projects via the GitLab API.
+    """
 
     def __init__(self):
+        self.VERSION = (1, 1, 0)
+        """ Current semantic version number """
+
         self.GitLab = None
         """ GitLab API library object """
 
@@ -60,6 +66,7 @@ class GitLabGroupBackup:
 
         logging.basicConfig(encoding="utf-8", level=CFG.get("loglevel"), format='%(asctime)s [%(levelname)s]: %(message)s')
         LOG.debug(f"Config: {CFG.CONFIG}")
+        LOG.debug(f"GitLab Group Backup version: {self.VERSION}")
 
         # Bootstrap
         self.output_path = self._get_output_path()

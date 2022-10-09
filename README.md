@@ -7,6 +7,7 @@ Creates full backups of a GitLab group including its subgroups and all projects 
   - Repositories are stores as [git bundles](https://git-scm.com/docs/git-bundle), allowing to restore data independent
     of GitLab.
   - Handles rate-limiting of GitLab API
+  - Supports private groups
   - Can automatically be run as recurring task via Docker
 
 ## Usage
@@ -14,25 +15,23 @@ Creates full backups of a GitLab group including its subgroups and all projects 
 Usage example: `./main.py --gitlab-url=https://gitlab.com --access-token=0123456789ABCDEF --group-id=42`
 
 ```text
-usage: main.py [-h] [-s] -u GITLAB_URL -g GROUP_ID [-t ACCESS_TOKEN]
-               [-o OUTPUT_DIR]
+usage: main.py [-h] [-s] [-o OUTPUT_DIR] -u GITLAB_URL -g GROUP_ID -t ACCESS_TOKEN
 
 options:
   -h, --help            show this help message and exit
   -s, --create-subdir   Create a new subdirectory, named by backup date,
                         inside output directory for each backup
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        Directory to write GitLab exports into
   -u GITLAB_URL, --gitlab-url GITLAB_URL
                         URL of the GitLab instance to access
   -g GROUP_ID, --group-id GROUP_ID
                         ID of the root group to backup
   -t ACCESS_TOKEN, --access-token ACCESS_TOKEN
                         GitLab API access token
-  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
-                        Directory to write GitLab exports into
-
 ```
 
-See also: `./main.py -h`
+See also: `./main.py --help`
 
 
 ## Requirements
@@ -52,13 +51,18 @@ To install all software dependencies run `poetry install` inside the project roo
 This tool is primarily configured by CLI arguments (see: `./main.py -h`). The `config.yaml` file contains additional
 configuration parameters and can be used to overwrite any of the CLI arguments.
 
-### Private Groups / Access Token Scopes
+### API Access Token
 
-If your group is private, a group access token with the following permissions is required:
+A group access token with the following permissions is required:
   - Role: Owner
   - Scopes: `api`, `read_api`, `read_repository`
 
-The token can be supplied via the `--access-token` CLI option or via the `config.yaml` file.
+The token is supplied via the `--access-token` CLI option or via the `config.yaml` file.
+
+### Group ID
+
+The ID of a GitLab group can be found on the group main page directly below the title. It is supplied via the
+`--group-id` CLI option or via the `config.yaml` file.
 
 
 ## Running via Docker
@@ -76,4 +80,4 @@ Exports are written into the `/data` folder inside the container. It is mapped t
 
   - Request rate limiting is automatically applied. A strongly enforced rate limit can greatly impact the execution time
     of this script.
-  - The `Owner` role and `api` scope are required to allow creation of backups inside GitLab.
+  - The `Owner` role and `api` scope are required to trigger the creation of backups within GitLab.

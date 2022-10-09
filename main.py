@@ -29,6 +29,7 @@ import os
 import time
 
 import gitlab
+import requests.exceptions
 
 from cli import CLI
 from config import Config
@@ -44,7 +45,7 @@ class GitLabGroupBackup:
     """
 
     def __init__(self):
-        self.VERSION = (1, 1, 0)
+        self.VERSION = (1, 1, 1)
         """ Current semantic version number """
 
         self.GitLab = None
@@ -71,7 +72,8 @@ class GitLabGroupBackup:
         # Bootstrap
         self.output_path = self._get_output_path()
         LOG.info(f"Writing all backups to: {os.path.abspath(self._get_output_path())}")
-        self._perform_gitlab_auth()
+        if not self._perform_gitlab_auth():
+            exit(1)
 
         # Get root group and all subgroups from API
         root_group = self.GitLab.groups.get(CFG.get("group_id"))
@@ -87,13 +89,23 @@ class GitLabGroupBackup:
         for group in [root_group] + subgroups:
             self._backup_group(group)
 
-    def _perform_gitlab_auth(self) -> None:
+    def _perform_gitlab_auth(self) -> bool:
         """
         Authenticates at the GitLab API
+
+        :returns True, if auth was successful
         """
-        self.GitLab = gitlab.Gitlab(url=CFG.get("gitlab_url"), private_token=CFG.get('access_token'))
-        self.GitLab.auth()
-        LOG.info(f"Authentication at {CFG.get('gitlab_url')} successful.")
+        try:
+            self.GitLab = gitlab.Gitlab(url=CFG.get("gitlab_url"), private_token=CFG.get('access_token'))
+            self.GitLab.auth()
+            LOG.info(f"Authentication at {CFG.get('gitlab_url')} successful.")
+            return True
+        except requests.exceptions.ConnectionError as e:
+            LOG.error(f"Connection to GitLab API at {CFG.get('gitlab_url')} could not be established: {e}")
+        except gitlab.exceptions.GitlabAuthenticationError as e:
+            LOG.error(f"Authentication at {CFG.get('gitlab_url')} failed: {e.error_message}")
+
+        return False
 
     def _get_output_path(self) -> os.path:
         """

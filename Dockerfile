@@ -27,4 +27,4 @@ RUN set -ex && \
 COPY . /app
 
 # Run application
-CMD ["/bin/bash", "-c", "/app/main.py --gitlab-url=${GITLAB_URL} --access-token=${GITLAB_ACCESS_TOKEN} --group-id=${GITLAB_GROUP_ID} --output-dir=/data"]
+CMD ["/bin/bash", "-c", "/app/main.py --gitlab-url=${GITLAB_URL} --access-token=${GITLAB_ACCESS_TOKEN} --group-id=${GITLAB_GROUP_ID} --output-dir=/data ${ADDITIONAL_ARGS}"]

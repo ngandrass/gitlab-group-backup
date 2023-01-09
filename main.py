@@ -76,9 +76,13 @@ class GitLabGroupBackup:
             exit(1)
 
         # Create backups
-        LOG.info(f"Backing up the following groups: {CFG.get('group_id')}")
-        for group_id in CFG.get('group_id'):
-            self._do_full_backup(group_id)
+        group_ids = CFG.get('group_id')
+        LOG.info(f"Backing up the following group(s): {group_ids}")
+        if type(group_ids) == list:
+            for group_id in group_ids:
+                self._do_full_backup(group_id)
+        else:
+            self._do_full_backup(group_ids)
 
         LOG.info(f"Finished backup of all groups")
 

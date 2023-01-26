@@ -130,7 +130,7 @@ class GitLabGroupBackup:
 
         LOG.info(f"Querying all subgroups recursively ...")
         subgroups = []
-        for subgroup in root_group.descendant_groups.list():
+        for subgroup in root_group.descendant_groups.list(get_all=True):
             subgroups.append(self.GitLab.groups.get(subgroup.id))
 
         # Backup groups
@@ -155,7 +155,7 @@ class GitLabGroupBackup:
             export.download(streamed=True, action=f.write)
 
         # Backup group projects
-        for project in group.projects.list():
+        for project in group.projects.list(get_all=True):
             self._backup_project(self.GitLab.projects.get(project.id), filestore_path)
 
         LOG.info(f"↥ Finished processing of group: {group.full_name} (ID: {group.id}) - {group.web_url}")

@@ -24,7 +24,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "python-gitlab"
-version = "3.12.0"
+version = "3.13.0"
 description = "Interact with GitLab API"
 category = "main"
 optional = false
@@ -32,7 +32,7 @@ python-versions = ">=3.7.0"
 
 [package.dependencies]
 requests = ">=2.25.0"
-requests-toolbelt = ">=0.9.1"
+requests-toolbelt = ">=0.10.1"
 
 [package.extras]
 autocompletion = ["argcomplete (>=1.10.0,<3)"]
@@ -193,8 +193,8 @@ idna = [
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
 python-gitlab = [
-    {file = "python-gitlab-3.12.0.tar.gz", hash = "sha256:567390c2b93690dae62ed9738bf9f221fa45c01378fdf896089dbf7c8a134fbd"},
-    {file = "python_gitlab-3.12.0-py3-none-any.whl", hash = "sha256:a5eb36b49783fda34563376674d5251dbbdbd1abd23b287dadf82f67d861b2c1"},
+    {file = "python-gitlab-3.13.0.tar.gz", hash = "sha256:ad502b72b5d1137f4af37d4a68ae20fe7d6c9778f67cbe2aec566f7995053c7d"},
+    {file = "python_gitlab-3.13.0-py3-none-any.whl", hash = "sha256:85ae778d8953aba87ad4b78aef7fbb5dae053980d2c20ff200bea29799685743"},
 ]
 PyYAML = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},

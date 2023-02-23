@@ -13,7 +13,7 @@ COPY ./pyproject.toml /app/
 WORKDIR /app
 
 # Install Poetry and Python packages
-ENV POETRY_VERSION=1.2.0
+ENV POETRY_VERSION=1.3.2
 RUN set -ex && \
     curl -sSL https://install.python-poetry.org | python - --version=${POETRY_VERSION} && \
     export PATH="/root/.local/bin:${PATH}" && \

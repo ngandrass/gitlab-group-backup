@@ -1,3 +1,13 @@
+# Version 1.4.0 (2023-02-28)
+
+  - Retry exporting GitLab objects for `export_retry_count` times before exiting with error.
+  - Update external libraries
+
+# Version 1.3.0 (2023-01-26)
+
+  - Fetch all groups and projects without upper limit
+  - Update external libraries
+
 # Version 1.2.0 (2022-10-09)
 
   - Allow backup of multiple groups at the same time

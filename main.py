@@ -147,12 +147,23 @@ class GitLabGroupBackup:
         os.makedirs(filestore_path, exist_ok=True)
 
         # Export group settings
-        export = group.exports.create()
-        time.sleep(CFG.get('group_backup_backoff_sec'))
-        backup_file = os.path.join(filestore_path, f"group_{group.path}_{group.id}_{self.backup_date_str}.tar.gz")
-        with open(backup_file, 'wb') as f:
-            LOG.info(f"  ↳ Group metadata export finished. Writing group backup to: {backup_file}")
-            export.download(streamed=True, action=f.write)
+        export_try = 0
+        while export_try < CFG.get('export_retry_count'):
+            export_try += 1
+            try:
+                export = group.exports.create()
+                time.sleep(CFG.get('group_backup_backoff_sec'))
+                backup_file = os.path.join(filestore_path, f"group_{group.path}_{group.id}_{self.backup_date_str}.tar.gz")
+                with open(backup_file, 'wb') as f:
+                    LOG.info(f"  ↳ Group metadata export finished. Writing group backup to: {backup_file}")
+                    export.download(streamed=True, action=f.write)
+                    break
+            except Exception as e:
+                if export_try == CFG.get('export_retry_count'):
+                    LOG.error(f"  ↳ Group metadata export failed (Try {export_try}/{CFG.get('export_retry_count')}). Exiting ...")
+                    raise SystemExit(f"Exited with error: {e}")
+                else:
+                    LOG.info(f"  ↳ Group metadata export failed (Try {export_try}/{CFG.get('export_retry_count')}). Retrying ...")
 
         # Backup group projects
         for project in group.projects.list(get_all=True):
@@ -164,23 +175,35 @@ class GitLabGroupBackup:
         """
         Creates a backup of the given project
         """
-        # Trigger export routine
         LOG.info(f"  ↳ Backing up project: {project.name} (ID: {project.id}) - {project.web_url}")
-        export = project.exports.create()
 
-        # Wait for export to finish
-        export.refresh()
-        LOG.info("    ↳ Export started. Waiting for completion...")
-        while export.export_status != 'finished':
-            time.sleep(1)
-            export.refresh()
-        LOG.info("    ↳ Export finished.")
+        export_try = 0
+        while export_try < CFG.get('export_retry_count'):
+            export_try += 1
+            try:
+                # Trigger export routine
+                export = project.exports.create()
 
-        # Download the exported archive
-        backup_file = os.path.join(target_dir, f"{project.path}_{project.id}_{self.backup_date_str}.tar.gz")
-        with open(backup_file, 'wb') as f:
-            LOG.info(f"    ↳ Writing project backup to: {backup_file}")
-            export.download(streamed=True, action=f.write)
+                # Wait for export to finish
+                export.refresh()
+                LOG.info("    ↳ Export started. Waiting for completion...")
+                while export.export_status != 'finished':
+                    time.sleep(1)
+                    export.refresh()
+                LOG.info("    ↳ Export finished.")
+
+                # Download the exported archive
+                backup_file = os.path.join(target_dir, f"{project.path}_{project.id}_{self.backup_date_str}.tar.gz")
+                with open(backup_file, 'wb') as f:
+                    LOG.info(f"    ↳ Writing project backup to: {backup_file}")
+                    export.download(streamed=True, action=f.write)
+                    break
+            except Exception as e:
+                if export_try == CFG.get('export_retry_count'):
+                    LOG.error(f"    ↳ Project export failed (Try {export_try}/{CFG.get('export_retry_count')}). Exiting ...")
+                    raise SystemExit(f"Exited with error: {e}")
+                else:
+                    LOG.info(f"    ↳ Project export failed (Try {export_try}/{CFG.get('export_retry_count')}). Retrying ...")
 
 
 if __name__ == "__main__":

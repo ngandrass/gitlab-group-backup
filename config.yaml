@@ -22,3 +22,7 @@ loglevel: "INFO"
 # Group Exports. It is up to the user to ensure the export is finished. However, Group Exports only contain metadata,
 # so they are much faster than Project Exports.
 group_backup_backoff_sec: 5
+
+# Number of retries when the export of an object (e.g. repository) failed.
+# If the maximum number of retries is reached, the script exists with an error.
+export_retry_count: 3
